@@ -1,13 +1,17 @@
+"use client"
 import { experiences } from "@/data/experiences"
 import { Timeline, TimelineItem, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent } from "@mui/lab"
-import { Container, Typography, Box, Stack, Chip } from "@mui/material"
+import { Container, Typography, Box, Stack, Chip, useTheme, useMediaQuery } from "@mui/material"
 
 export default function Experiences() {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     return (
         <>
-            <Container id="exp" sx={{ fontSize: {xs: '10px'} }}>
+            <Container id="exp" sx={{ fontSize: { xs: '10px' } }}>
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", my: 8 }}>
-                    <Typography variant="h3">
+                    <Typography variant="h3" sx={{textAlign:"center"}}>
                         Expériences Professionnelles
                     </Typography>
                     <Box sx={{
@@ -18,7 +22,12 @@ export default function Experiences() {
                         mt: 2,
                     }} />
                 </Box>
-                <Timeline position="alternate">
+                <Timeline position={isMobile ? "right" : "alternate"} sx={{
+                    px: { xs: 0, sm: 2 },
+                    [`& .MuiTimelineItem-root::before`]: {
+                        display: { xs: 'none', sm: 'block' }
+                    }
+                }}>
                     {experiences.map((experience, index) => (
                         <TimelineItem key={index}>
                             <TimelineSeparator>
