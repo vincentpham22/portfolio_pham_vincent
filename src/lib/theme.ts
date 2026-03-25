@@ -27,14 +27,34 @@ const theme = createTheme({
     h2: {
       fontFamily: "Nunito",
       fontWeight: 700,
+      "@media (max-width:800px)": {
+        fontSize: "2.5rem",
+      },
     },
     h3: {
       fontFamily: "Nunito",
       fontWeight: 600,
+      "@media (max-width:800px)": {
+        fontSize: "2.5rem",
+      },
     },
     h4: { fontWeight: 600 },
     h5: { fontWeight: 600 },
-    h6: { fontWeight: 600 },
+    h6: { fontWeight: 600, 
+      "@media (max-width:800px)": {
+        fontSize: "1rem",
+     },
+    },
+    body1: {
+      "@media (max-width:800px)": {
+        fontSize: "0.85rem",
+      },
+    },
+    body2: {
+      "@media (max-width:800px)": {
+        fontSize: "0.75rem",
+      },
+    },
   },
   shape: {
     borderRadius: 12, // coins arrondis pour toutes les Cards/Buttons
