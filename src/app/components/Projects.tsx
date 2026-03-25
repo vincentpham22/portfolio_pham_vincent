@@ -72,12 +72,12 @@ export default function Projects() {
                                         </Box>
                                     )}
 
-                                    <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center" }}>
+                                    <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center", flexWrap: "wrap", gap: 0.5}}>
                                         {project.tech.map((tech, idx) => (
                                             <Chip key={idx} label={tech} color='primary' variant='outlined' />
                                         ))}
                                     </Stack>
-                                    <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center" }}>
+                                    <Stack direction="row" spacing={1} sx={{ mt: 2, justifyContent: "center", flexWrap: "wrap", gap: 0.5 }}>
                                         {project.acquis.map((acquis, idx) => (
                                             <Chip key={idx} label={acquis} color='secondary' variant='outlined' />
                                         ))
