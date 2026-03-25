@@ -5,7 +5,7 @@ import { Container, Typography, Box, Stack, Chip } from "@mui/material"
 export default function Experiences() {
     return (
         <>
-            <Container id="exp">
+            <Container id="exp" sx={{ fontSize: {xs: '10px'} }}>
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", my: 8 }}>
                     <Typography variant="h3">
                         Expériences Professionnelles
@@ -25,12 +25,15 @@ export default function Experiences() {
                                 <TimelineDot color="primary" />
                                 <TimelineConnector />
                             </TimelineSeparator>
-                            <TimelineContent>
+                            <TimelineContent sx={{ minWidth: 0, width: "100%", boxSizing: "border-box" }}>
                                 <Box sx={{
                                     p: 2,
                                     borderRadius: 2,
                                     border: '1px solid',
                                     borderColor: 'divider',
+                                    width: "100%",
+                                    boxSizing: "border-box",
+                                    wordBreak: "break-word",
                                     '&:hover': {
                                         borderColor: 'primary.main',
                                         transition: 'border-color 0.3s ease'
@@ -47,7 +50,7 @@ export default function Experiences() {
                                         ))
                                         }
                                     </Stack>
-                                    <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+                                    <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}>
                                         {experience.acquis.map((acquis, idx) => (
                                             <Chip key={idx} label={acquis} color='secondary' variant='outlined' />
                                         ))
