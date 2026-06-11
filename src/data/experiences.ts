@@ -10,6 +10,15 @@ export type Experience = {
 
 export const experiences: Experience[] = [
     {
+        title: "Stage développeur web",
+        location : "Deadia, Le Thillay (95500)",
+        date: "Mai 2026 - Août 2026",
+        description: "Conception et développement de la plateforme ERP/CRM de l'entreprise nommé Baqe. Je gère la partie flotte, transport et logistique en intégrant de nouvelles fonctionnalités. Je gère aussi les modules salariés, véhicules, RH, planning des clients, rapports de performance, e-signature électronique et OCR de documents administratifs (carte d'identité, passeport, RIB, permis).",
+        aventure: "Je travaille en duo avec mon tuteur et la collaboration se fait très naturellement et fluide. Je me suis très vite adapté à mon environnement de travail et des outils utilisés. J'ai été conforté dans l'utilisation de la stack du projet (next.js et react) car j'ai déjà eu des expériences similaires auparavant, ce qui a rendu la compréhension du code plus facile.",
+        tech: ["Next.js", "React", "TypeScript", "FastAPI", "SQLAlchemy 2.0", "Pydantic", "PostgreSQL", "Docker", "Hetzner / DigitalOcean / Cloudflare", "Github"],
+        acquis: ["architecture logicielle", "autonomie", "gestion de projet", "rigueur", "adaptation", "documentation"]
+    },
+    {
         title: "Stage développeur informatique",
         location : "Factory, Saint-Ouen (93070)",
         date: "Juin 2025 - Août 2025",

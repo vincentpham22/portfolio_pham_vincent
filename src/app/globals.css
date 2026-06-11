@@ -1,7 +1,462 @@
+/* ============================================================================
+   AURORA / GLASS — Foundation stylesheet
+   Strictly black + blue. Azure #5BC8FF is the single bright accent.
+   All design tokens live on :root as --au-* custom properties so plain
+   @keyframes and MUI `sx` both reference the same source of truth.
+   ============================================================================ */
+
+:root {
+  /* --- Base / ink --- */
+  --au-bg:        #0A0A0F;   /* page void (body fallback + MUI background.default) */
+  --au-bg-deep:   #07070B;   /* darkest pools, vignette edges */
+  --au-bg-lift:   #10131F;   /* top radial lift in aurora base wash */
+
+  /* --- Blue ramp (palette-locked) --- */
+  --au-blue-dark:  #1E3A5F;  /* primary.dark — borders, deep wash, anchor halo */
+  --au-blue:       #3f6196;  /* primary.main — workhorse */
+  --au-blue-light: #6B8FC9;  /* primary.light — text gradients, hairlines */
+  --au-azure:      #5BC8FF;  /* THE accent — glow, focus, active, acquis chips */
+  --au-azure-soft: rgba(91, 200, 255, 0.14);  /* azure soft-fill (chip bg) */
+
+  /* --- Text (cold blue cast, never pure #FFF) --- */
+  --au-text:       #EDF1F8;  /* near-white, cold (replaces #FFFFFF) */
+  --au-text-dim:   #9BA8C2;  /* cool grey-blue (replaces #A0A0B0) */
+  --au-text-faint: rgba(155, 168, 194, 0.55);  /* captions, dates, copyright */
+
+  /* --- Glass --- */
+  --au-glass-fill:       rgba(18, 20, 30, 0.55);   /* canonical frosted fill */
+  --au-glass-fill-hi:    rgba(24, 28, 42, 0.62);   /* hover / nav-scrolled fill */
+  --au-hairline:         rgba(107, 143, 201, 0.18);/* default luminous border */
+  --au-hairline-lit:     rgba(91, 200, 255, 0.45); /* border on hover/active */
+
+  /* --- Composite shadows --- */
+  --au-glass-shadow:
+      inset 0 1px 0 rgba(237, 241, 248, 0.06),   /* top inner "lit edge" */
+      0 8px 32px rgba(0, 0, 0, 0.45);            /* depth drop */
+  --au-glow-hover:
+      inset 0 1px 0 rgba(237, 241, 248, 0.10),
+      0 12px 40px rgba(0, 0, 0, 0.50),
+      0 0 28px rgba(91, 200, 255, 0.18);          /* the azure bloom */
+  --au-glow-az: 0 0 18px rgba(91,200,255,0.35), 0 0 2px rgba(91,200,255,0.6);
+
+  /* --- Easing --- */
+  --au-ease-glide:  cubic-bezier(0.22, 1, 0.36, 1);  /* entrances + hovers */
+  --au-ease-back:   cubic-bezier(0.34, 1.4, 0.64, 1);/* chips/icons: tiny overshoot */
+  --au-ease-drift:  cubic-bezier(0.45, 0, 0.55, 1);  /* ambient loops */
+
+  /* --- Duration --- */
+  --au-dur-micro: 120ms;  /* chip press, icon tint */
+  --au-dur-fast:  220ms;  /* standard hover, border light-up */
+  --au-dur-base:  360ms;  /* card lift, nav underline, nav scroll-state */
+  --au-dur-slow:  620ms;  /* scroll-reveal entrance */
+
+  /* --- Rhythm / stagger --- */
+  --au-stagger: 90ms;
+}
+
+/* ----------------------------------------------------------------------------
+   Existing base rules (preserved)
+   ---------------------------------------------------------------------------- */
 html {
   scroll-behavior: smooth;
 }
 
 [id] {
-  scroll-margin-top: 80px;
+  scroll-margin-top: 96px; /* nav clearance for anchor jumps */
+}
+
+body {
+  background-color: var(--au-bg);
+  color: var(--au-text);
+}
+
+/* ============================================================================
+   2. AURORA BACKGROUND — fixed full-viewport atmosphere behind everything.
+   Mounted once in layout.tsx. Never scrolls; content scrolls over a static sky.
+   z-index -1 for the whole stack; content flows at default 0/auto.
+   ============================================================================ */
+
+.aurora-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 50% -10%, var(--au-bg-lift) 0%, var(--au-bg) 55%);
+}
+
+.au-halo {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+  filter: blur(100px);
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* H1 — dominant glow, top-left */
+.au-halo--a {
+  width: max(60vw, 720px);
+  aspect-ratio: 1;
+  top: -15%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(63,97,150,0.45) 0%, transparent 62%);
+  opacity: 0.50;
+  animation-name: drift-a;
+  animation-duration: 38s;
+}
+
+/* H2 — azure accent, the "alive" highlight, right */
+.au-halo--b {
+  width: max(45vw, 560px);
+  aspect-ratio: 1;
+  top: 30%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(91,200,255,0.22) 0%, transparent 65%);
+  opacity: 0.45;
+  animation-name: drift-b;
+  animation-duration: 46s;
+}
+
+/* H3 — deep anchor, grounding depth, bottom (blooms into footer) */
+.au-halo--c {
+  width: max(55vw, 820px);
+  aspect-ratio: 1;
+  bottom: -20%;
+  left: 20%;
+  background: radial-gradient(circle, rgba(30,58,95,0.55) 0%, transparent 60%);
+  opacity: 0.45;
+  animation-name: drift-c;
+  animation-duration: 54s;
+}
+
+/* Mismatched periods (38/46/54s) so halos never re-sync into a visible pattern.
+   Translate-only (compositor) + a whisper of scale. */
+@keyframes drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(8%, 6%, 0) scale(1.12); }
+}
+@keyframes drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to   { transform: translate3d(-6%, 10%, 0) scale(0.95); }
+}
+@keyframes drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(5%, -8%, 0) scale(1.10); }
+}
+
+/* Grain — kills banding on near-black. Painted after the field. */
+.aurora-grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.025;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Vignette — edge darkening so content floats, page fades into atmosphere. */
+.aurora-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(130% 130% at 50% 40%, transparent 55%, rgba(7,7,11,0.55) 100%);
+}
+
+/* Mobile/perf: smaller blur and drop the azure halo (H2). */
+@media (max-width: 768px) {
+  .au-halo { filter: blur(60px); }
+  .au-halo--b { display: none; }
+}
+
+/* ============================================================================
+   3. FROSTED-GLASS RECIPE — .glass and variants.
+   The single most-reused primitive. The shadow is the whole trick.
+   ============================================================================ */
+
+.glass {
+  background: var(--au-glass-fill);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--au-hairline);
+  border-radius: 16px;
+  box-shadow: var(--au-glass-shadow);
+}
+
+/* Fixed nav bar. Border + heavier blur intended to appear only after scroll
+   (the component agent toggles .is-scrolled). */
+.glass--nav {
+  background: var(--au-glass-fill-hi);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: none;
+  border-bottom: 1px solid var(--au-hairline);
+  border-radius: 0;
+  box-shadow: var(--au-glass-shadow);
+}
+
+/* Project cards — carries the most content weight; equal-height rows. */
+.glass--raised {
+  background: var(--au-glass-fill);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--au-hairline);
+  border-radius: 16px;
+  box-shadow: var(--au-glass-shadow);
+  height: 100%;
+}
+
+/* Social / CV / GitHub icon buttons — unifies every icon button. */
+.glass--pill {
+  background: var(--au-glass-fill);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--au-hairline);
+  border-radius: 50%;
+  box-shadow: var(--au-glass-shadow);
+  min-width: 40px;
+  min-height: 40px;
+}
+
+/* Mobile: cap card blur at 12px to protect paint cost. */
+@media (max-width: 600px) {
+  .glass,
+  .glass--raised { backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); }
+}
+
+/* ============================================================================
+   4. .glow-hover — universal interactive lift + azure ignite.
+   Replaces both the retired pink and the orphaned purple shadow.
+   ============================================================================ */
+
+.glow-hover {
+  position: relative;
+  transition:
+    transform    var(--au-dur-base) var(--au-ease-glide),
+    box-shadow   var(--au-dur-base) var(--au-ease-glide),
+    border-color var(--au-dur-fast) ease;
+}
+.glow-hover:hover {
+  transform: translateY(-6px);
+  border-color: var(--au-hairline-lit);
+  box-shadow: var(--au-glow-hover);
+  z-index: 1;
+}
+
+/* Optional sheen sweep (project cards only) — one-shot, transform-only. */
+.glow-hover--sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(91,200,255,0.10) 48%, transparent 66%);
+  transform: translateX(-120%);
+  transition: transform 700ms var(--au-ease-glide);
+}
+.glow-hover--sheen:hover::after {
+  transform: translateX(120%);
+}
+
+/* Icon-button hover language (pills): tint azure, lift, glow.
+   Enumerated props — never `transition: all`. */
+.glow-pill {
+  color: var(--au-blue-light);
+  transition:
+    color        var(--au-dur-fast) ease,
+    transform    var(--au-dur-fast) var(--au-ease-glide),
+    box-shadow   var(--au-dur-fast) var(--au-ease-glide),
+    border-color var(--au-dur-fast) ease;
+}
+.glow-pill:hover {
+  color: var(--au-azure);
+  transform: translateY(-3px);
+  border-color: var(--au-hairline-lit);
+  box-shadow: var(--au-glow-hover);
+  filter: drop-shadow(0 0 8px rgba(91,200,255,0.5));
+}
+
+/* ============================================================================
+   5. Gradient title + glowing underline.
+   ============================================================================ */
+
+.au-title-gradient {
+  background: linear-gradient(120deg, #EDF1F8 0%, #6B8FC9 55%, #5BC8FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  filter: drop-shadow(0 2px 18px rgba(63,97,150,0.30));
+}
+
+.au-title-rule {
+  height: 3px;
+  width: 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #5BC8FF, rgba(91,200,255,0));
+  box-shadow: 0 0 12px rgba(91,200,255,0.6);
+  transition: width var(--au-dur-slow) var(--au-ease-glide) 120ms;
+}
+/* Grows when its reveal wrapper enters, or immediately if used standalone. */
+.reveal.is-in .au-title-rule,
+.au-title-rule.is-in,
+.is-in > .au-title-rule {
+  width: 88px;
+}
+
+/* Eyebrow micro-label (azure monospaced). */
+.au-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--au-azure);
+  opacity: 0.8;
+  font-family: var(--font-roboto-mono), "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ============================================================================
+   7. SCROLL-REVEAL ANIMATION SYSTEM
+   .reveal is hidden until a single IntersectionObserver adds .is-in.
+   ============================================================================ */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.985);
+  filter: blur(6px); /* "frosted glass coming into focus" */
+  will-change: transform, opacity, filter;
+  transition:
+    opacity   var(--au-dur-slow) var(--au-ease-glide),
+    transform var(--au-dur-slow) var(--au-ease-glide),
+    filter    var(--au-dur-slow) var(--au-ease-glide);
+  transition-delay: calc(var(--reveal-delay, 0) * var(--au-stagger));
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+/* Variants compose with .reveal. */
+.reveal--left  { transform: translate3d(-24px, 18px, 0) scale(0.985); }
+.reveal--right { transform: translate3d( 24px, 18px, 0) scale(0.985); }
+.reveal--scale { transform: scale(0.92); filter: blur(10px); }
+.reveal--none  { transform: none; filter: blur(6px); }
+
+/* ============================================================================
+   Timeline accents (one-shot on reveal).
+   ============================================================================ */
+
+@keyframes dot-pop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.is-in .au-dot,
+.au-dot.is-in {
+  animation: dot-pop 520ms var(--au-ease-back) both;
+}
+
+@keyframes connector-draw {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+.is-in .au-connector,
+.au-connector.is-in {
+  transform-origin: top;
+  animation: connector-draw var(--au-dur-slow) var(--au-ease-glide) both;
+}
+
+/* ============================================================================
+   9. Profile-photo ring.
+   ============================================================================ */
+
+.au-avatar-ring {
+  position: relative;
+  border-radius: 50%;
+  padding: 5px;
+  isolation: isolate;
+  background: linear-gradient(135deg, rgba(91,200,255,0.55), rgba(63,97,150,0.15));
+  box-shadow:
+    0 0 0 1px rgba(107,143,201,0.25),
+    0 0 60px rgba(91,200,255,0.25),   /* aurora bloom around the face */
+    0 20px 50px rgba(0,0,0,0.5);
+}
+
+/* Enhancement (motion-safe, desktop only): slow conic rim + breathe. */
+@media (prefers-reduced-motion: no-preference) {
+  @media (min-width: 768px) {
+    .au-avatar-ring::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      z-index: -1;
+      background: conic-gradient(from 0deg,
+        var(--au-blue-dark),
+        var(--au-blue) 90deg,
+        var(--au-azure) 180deg,
+        var(--au-blue-light) 270deg,
+        var(--au-blue-dark));
+      filter: blur(6px);
+      animation: ring-spin 16s linear infinite;
+    }
+  }
+}
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   Misc keyframes available to component agents.
+   ============================================================================ */
+
+/* Gentle float (e.g. hero accents). Transform-only. */
+@keyframes au-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}
+
+/* Shimmer sweep (skeleton / accent strips). */
+@keyframes au-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+/* Footer glass seam divider (decorative gradient hairline). */
+.au-seam {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--au-hairline-lit), transparent);
+  box-shadow: 0 0 8px rgba(91,200,255,0.25);
+}
+
+/* ============================================================================
+   13. Accessibility & performance — neutralize heavy / looping motion.
+   Hover state changes (user-initiated, instantaneous) are kept; only
+   looping/auto-playing motion and scroll-reveal entrances are removed.
+   This deliberately overrides the smooth-scroll rule above.
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .au-title-rule { width: 88px !important; }
+  .au-halo,
+  .au-avatar-ring::before { animation: none !important; }
 }
